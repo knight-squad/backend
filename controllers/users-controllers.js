@@ -88,7 +88,7 @@ const signup = async (req, res, next) => {
       email,
       address,
       contact_no,
-      userId:generator.uInt32()
+      userId:`Cl${generator.uInt32()}`
     }
     );
     

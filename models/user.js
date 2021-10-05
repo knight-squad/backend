@@ -4,7 +4,6 @@ const sequelize = require('../database');
 const User = sequelize.define('user', {
 
 	userId:{
-		// Sequelize module has INTEGER Data_Type.
 		type:Sequelize.STRING,
 		// To increment user_id automatically.
 		// autoIncrement:true,

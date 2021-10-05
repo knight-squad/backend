@@ -9,6 +9,7 @@ const userRoutes = require('./routes/users-routes');
 const HttpError = require('./models/http-error');
 
 const User = require('./models/user');
+const Center = require('./models/center');
 const app = express();
 
 app.use(bodyParser.json());//
@@ -43,11 +44,10 @@ app.use((req, res, next) => {
     res.json({ message: error.message || 'An unknown error occurred!' });
   });
 
+//Relations
+// User.belongsTo(Center); //1U --> 1C, 1C --> MU
+// Center.hasMany(User);
 
-
-// app.get("/", (req, res) => {
-//     res.send("hello..");
-// });
 
 
 //CONNECTING MYSQL & SYNCING MODELS
@@ -58,8 +58,8 @@ app.use((req, res, next) => {
 // console.log("app is listening on " + port)
 
 sequelize
-  .sync({force:true})
-  // .sync()
+  // .sync({force:true})
+  .sync()
   .then((sresults) => {
     // console.log(results);
     app.listen(port);
