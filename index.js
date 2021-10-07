@@ -6,6 +6,7 @@ const sequelize = require('./database');
 
 
 const userRoutes = require('./routes/users-routes');
+const centerRoutes = require('./routes/centers-routes');
 const HttpError = require('./models/http-error');
 
 const User = require('./models/user');
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 
 //ROUTES
 app.use("/auth", userRoutes);
+app.use("/centers", centerRoutes);
 
 
 
