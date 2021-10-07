@@ -25,6 +25,7 @@ const getUsers = async (req, res, next) => {
  
 };
 
+
 const signup = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -193,6 +194,97 @@ const login = async (req, res, next) => {
 
 };
 
+//////////////////////////////////////////////////////////////////////
+const getUser = async (req, res, next) => {
+  // const user_id = req.params.userId;
+  //   try {
+  //       const allUsers = await User.findAll({where: {user_id}});
+  //       res.status(200).json({
+  //           user: allUsers,
+  //       });
+  //   } catch (err) {
+  //       if (!err.statusCode) {
+  //           err.statusCode = 500;
+  //       }
+  //       next(err);
+  //   }
+  const userId = req.params.uid;
+  try{
+    const allUsers = await User.findAll({where: {userId}});
+    res.status(200).json({
+                user: allUsers,
+            });
+  }
+  catch (err) {
+    const error = new HttpError(
+      'Fetching user failed, please try again later.',
+      500
+    );
+    return next(error);
+    }
+};
+
+
+const deleteUser = async (req, res, next) => {
+  const user_id = req.params.userId;
+
+  let user = await User.destroy({where: {user_id}}).catch((err) => {
+      if (!err.statusCode) {
+          err.statusCode = 500;
+      }
+      next(err);
+  });
+  if (!user) {
+      console.log("user not found");
+      res.status(500).json({message: "user not found"});
+  } else {
+      res.status(200).json({
+          user: "Deleted",
+      });
+  }
+};
+
+const updateUser = async (req, res, next) => {
+  const {user_id, password, name, contact_no, address} = req.body;
+  console.log(user_id);
+
+  const hashedpw = await bcrypt.hash(password, 8).catch((err) => {
+      if (!err.statusCode) {
+          err.statusCode = 500;
+      }
+      next(err);
+  });
+
+  try {
+      await User.update(
+          {
+              user_id,
+              password: hashedpw,
+              name,
+              contact_no,
+              address
+          },
+          {
+              where: {
+                  user_id
+              },
+          }
+      );
+      res.status(200).json({
+          message: "ok",
+      });
+  } catch (err) {
+      if (!err.statusCode) {
+          err.statusCode = 500;
+      }
+      next(err);
+  }
+};
+
+
 exports.getUsers = getUsers;
 exports.signup = signup;
 exports.login = login;
+exports.getUser = getUser;
+exports.deleteUser = deleteUser;
+exports.updateUser = updateUser;
