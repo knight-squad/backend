@@ -6,7 +6,7 @@ const mysql = require("mysql");
 const db = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "password",
+    password: "",
     database: "qcrs_database",
     port: "3306"
 })
