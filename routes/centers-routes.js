@@ -1,8 +1,10 @@
 const express = require('express');
-
-const centerssControllers = require('../controllers/centers-controllers');
-
 const router = express.Router();
+
+const centersController = require('../controllers/centers-controllers');
+
+
+router.post('/new', centersController.createCenter);
 
 
 
