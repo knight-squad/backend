@@ -6,6 +6,7 @@ const centersController = require('../controllers/centers-controllers');
 router.post('/new', centersController.createCenter);
 
 router.get('', centersController.getCenters);
+router.get('/center/:centerId', centersController.getSingleCenter);
 
 
 

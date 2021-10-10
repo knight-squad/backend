@@ -26,7 +26,19 @@ exports.getCenters = async(req, res, next) => {
     })
 }
 
-// Get single center details = /centers/center/:id
+// Get single center details = /centers/center/:centerId
+exports.getSingleCenter = async(req, res, next) => {
 
+    const center = await Center.findByPk(req.params.centerId);
+
+    if (!center){
+        return next(new HttpError('Center not found',404));
+    }
+
+    res.status(200).json({
+        success: true,
+        center
+    })
+}
 
 
