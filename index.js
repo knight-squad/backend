@@ -60,8 +60,8 @@ app.use((req, res, next) => {
 // console.log("app is listening on " + port)
 
 sequelize
-  // .sync({force:true})
-  .sync()
+  .sync({force:true})
+  // .sync()
   .then((sresults) => {
     // console.log(results);
     app.listen(port);
