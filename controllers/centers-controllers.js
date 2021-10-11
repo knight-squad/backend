@@ -1,4 +1,3 @@
-const { validationResult } = require('express-validator');
 const HttpError = require('../models/http-error');
 const Center = require('../models/center');
 
@@ -42,71 +41,82 @@ exports.getSingleCenter = async (req, res, next) => {
 }
 
 // Update product => /centers/update/:centerId
-// exports.updateCenter = async (req, res, next) => {
-
-//     const id = req.params.id;
-
-//     Tutorial.update(req.body, {
-//         where: { id: id }
-//     })
-//         .then(num => {
-//             if (num == 1) {
-//                 res.send({
-//                     message: "Tutorial was updated successfully."
-//                 });
-//             } else {
-//                 res.send({
-//                     message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found or req.body is empty!`
-//                 });
-//             }
-//         })
-//         .catch(err => {
-//             res.status(500).send({
-//                 message: "Error updating Tutorial with id=" + id
-//             });
-//         });
-// };
-
-// Delete center => /centers/delete/:centerId
-exports.deleteCenter = async (req, res, next) => {
+exports.updateCenter = async (req, res, next) => {
 
     const centerId = req.params.centerId;
 
-    Center.destroy({
+    Center.update(req.body, {
         where: { centerId: centerId }
     })
         .then(num => {
             if (num == 1) {
                 res.send({
-                    message: "Center was deleted successfully!"
+                    message: "Center was updated successfully!"
                 });
             } else {
                 res.send({
-                    message: `Cannot delete Center with centerId=${centerId}. Maybe Center was not found!`
+                    message: `Cannot update Center with centerId=${centerId}. Maybe Center was not found or req.body is empty!`
                 });
             }
         })
         .catch(err => {
             res.status(500).send({
-                message: "Could not delete Center with centerId=" + centerId
+                message: "Error updating Center with centerId=" + centerId
             });
         });
 };
 
-// let center = await Center.findByPk(req.params.centerId);
+// Delete center => /centers/delete/:centerId
+exports.deleteCenter = async (req, res, next) => {
 
-// if (!center) {
-//     return next(new HttpError('Center not found',404));
+    const center = await Center.findByPk(req.params.centerId);
+
+    console.log(center)
+
+    if (!center) {
+        return next(new HttpError('Center not found', 404));
+    }
+
+    await Center.destroy({
+        where: { centerId: center.centerId }
+    })
+
+    res.status(200).json({
+        success: true,
+        message: 'Center is deleted'
+    })
+}
+
+// // Delete center => /centers/delete/:centerId
+// exports.deleteCenter = async (req, res, next) => {
+
+//     const centerId = req.params.centerId;
+
+//     Center.destroy({
+//         where: { centerId: centerId }
+
+//         .then(num => {
+//             if (num == 1) {
+//                 res.status(200).json({
+//                     success: true,
+//                     message: 'Center was deleted successfully!'
+//                 })
+//             } else {
+//                 res.status(200).json({
+//                     success: false,
+//                     message: 'Center was not found!'
+//                 })
+//             }
+//         })
+//         .catch(err => {
+//             res.status(200).json({
+//                 success: false,
+//                 message: 'Error'
+//             })
+//         })
+//     })
 // }
 
-// product = await Center.update(req.body, {
-//     new: true,
-//     runValidators: true,
-//     useFindAndModify: false
-// })
 
-// res.status(200).json({
-//     success: true,
-//     center
-// })
+
 
