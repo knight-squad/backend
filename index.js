@@ -6,6 +6,7 @@ const sequelize = require('./database');
 
 
 const userRoutes = require('./routes/users-routes');
+const centerRoutes = require('./routes/centers-routes');
 const HttpError = require('./models/http-error');
 
 const User = require('./models/user');
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 
 //ROUTES
 app.use("/auth", userRoutes);
+app.use("/centers", centerRoutes);
 
 
 
@@ -58,8 +60,8 @@ app.use((req, res, next) => {
 // console.log("app is listening on " + port)
 
 sequelize
-  // .sync({force:true})
-  .sync()
+  .sync({force:true})
+  // .sync()
   .then((sresults) => {
     // console.log(results);
     app.listen(port);

@@ -1,9 +1,9 @@
-// const express = require('express');
+const express = require('express');
 
-// const centerssControllers = require('../controllers/centers-controllers');
+const centerssControllers = require('../controllers/centers-controllers');
 
-// const router = express.Router();
+const router = express.Router();
 
 
 
-// module.exports = router;
+module.exports = router;
