@@ -1,30 +1,27 @@
-const { validationResult } = require('express-validator');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const { validationResult } = require("express-validator");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-const HttpError = require('../models/http-error');
-const User = require('../models/user');
+const HttpError = require("../models/http-error");
+const User = require("../models/user");
 const aleaRNGFactory = require("number-generator/lib/aleaRNGFactory");
 const generator = aleaRNGFactory(10);
-
 
 const getUsers = async (req, res, next) => {
   let users;
   try {
-    users = await User.findAll({}, '-password');
+    users = await User.findAll({}, "-password");
     res.status(200).json({
       users: users,
-  });
+    });
   } catch (err) {
     const error = new HttpError(
-      'Fetching users failed, please try again later.',
+      "Fetching users failed, please try again later.",
       500
     );
     return next(error);
   }
- 
 };
-
 
 const signup = async (req, res, next) => {
   const errors = validationResult(req);
@@ -63,7 +60,7 @@ const signup = async (req, res, next) => {
     hashedPassword = await bcrypt.hash(password, 12);
   } catch (err) {
     const error = new HttpError(
-      'Could not create user, please try again.',
+      "Could not create user, please try again.",
       500
     );
     return next(error);
@@ -89,42 +86,37 @@ const signup = async (req, res, next) => {
       email,
       address,
       contact_no,
-      userId:`Cl${generator.uInt32()}`
-    }
-    );
-    
+      userId: `Cl${generator.uInt32()}`,
+    });
 
     console.log("User saved");
     return res.status(200).json({ message: "User created" });
+  } catch (err) {
+    const error = new HttpError(
+      "Signing up failed, please try again later.",
+      500
+    );
+    return next(error);
   }
-  catch (err) {
-      const error = new HttpError(
-        'Signing up failed, please try again later.',
-        500
-      );
-      return next(error);
-    }
 
+  // let token;
+  // try {
+  //   token = jwt.sign(
+  //     { userId: user.id, email: user.email },
+  //     'theprivatekey',
+  //     { expiresIn: '1h' }
+  //   );
+  // } catch (err) {
+  //   const error = new HttpError(
+  //     'Signing up failed, please try again later.',
+  //     500
+  //   );
+  //   return next(error);
+  // }
 
-    // let token;
-    // try {
-    //   token = jwt.sign(
-    //     { userId: user.id, email: user.email },
-    //     'theprivatekey',
-    //     { expiresIn: '1h' }
-    //   );
-    // } catch (err) {
-    //   const error = new HttpError(
-    //     'Signing up failed, please try again later.',
-    //     500
-    //   );
-    //   return next(error);
-    // }
-  
-    // res
-    //   .status(201)
-    //   .json({ userId: user.id, email: user.email, token: token });  
-
+  // res
+  //   .status(201)
+  //   .json({ userId: user.id, email: user.email, token: token });
 };
 
 const login = async (req, res, next) => {
@@ -133,12 +125,14 @@ const login = async (req, res, next) => {
   let existingUser;
 
   try {
-    existingUser = await User.findOne({ 
+    existingUser = await User.findOne({
       where: {
-        email: email }});
+        email: email,
+      },
+    });
   } catch (err) {
     const error = new HttpError(
-      'Logging in failed, please try again later.',
+      "Logging in failed, please try again later.",
       500
     );
     return next(error);
@@ -146,7 +140,7 @@ const login = async (req, res, next) => {
 
   if (!existingUser) {
     const error = new HttpError(
-      'Invalid credentials, could not log you in.',
+      "Invalid credentials, could not log you in.",
       401
     );
     return next(error);
@@ -157,7 +151,7 @@ const login = async (req, res, next) => {
     isValidPassword = await bcrypt.compare(password, existingUser.password);
   } catch (err) {
     const error = new HttpError(
-      'Could not log you in, please check your credentials and try again.',
+      "Could not log you in, please check your credentials and try again.",
       500
     );
     return next(error);
@@ -165,7 +159,7 @@ const login = async (req, res, next) => {
 
   if (!isValidPassword) {
     const error = new HttpError(
-      'Invalid credentials, could not log you in.',
+      "Invalid credentials, could not log you in.",
       401
     );
     return next(error);
@@ -175,12 +169,12 @@ const login = async (req, res, next) => {
   try {
     token = jwt.sign(
       { userId: existingUser.id, email: existingUser.email },
-      'theprivatekey',
-      { expiresIn: '1h' }
+      "theprivatekey",
+      { expiresIn: "1h" }
     );
   } catch (err) {
     const error = new HttpError(
-      'Logging in failed, please try again later.',
+      "Logging in failed, please try again later.",
       500
     );
     return next(error);
@@ -189,9 +183,8 @@ const login = async (req, res, next) => {
   res.json({
     userId: existingUser.id,
     email: existingUser.email,
-    token: token
+    token: token,
   });
-
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -209,78 +202,122 @@ const getUser = async (req, res, next) => {
   //       next(err);
   //   }
   const userId = req.params.uid;
-  try{
-    const allUsers = await User.findAll({where: {userId}});
+  try {
+    const allUsers = await User.findAll({ where: { userId } });
     res.status(200).json({
-                user: allUsers,
-            });
-  }
-  catch (err) {
+      user: allUsers,
+    });
+  } catch (err) {
     const error = new HttpError(
-      'Fetching user failed, please try again later.',
+      "Fetching user failed, please try again later.",
       500
     );
     return next(error);
-    }
+  }
 };
 
+const getUserByEmail = async (req, res, next) => {
+  console.log("executing");
+  console.log(req.query, "hhhhh");
+  const emailAddress = req.query.email;
+  console.log(emailAddress);
+  try {
+    const user = await User.findOne(
+      { where: { email: emailAddress } },
+      "-password"
+    );
+    console.log("User details here");
+    res.status(200).json({
+      user: user,
+    });
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching user failed, please try again later.",
+      500
+    );
+    return next(error);
+  }
+};
 
 const deleteUser = async (req, res, next) => {
   const user_id = req.params.userId;
 
-  let user = await User.destroy({where: {user_id}}).catch((err) => {
-      if (!err.statusCode) {
-          err.statusCode = 500;
-      }
-      next(err);
+  let user = await User.destroy({ where: { user_id } }).catch((err) => {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
   });
   if (!user) {
-      console.log("user not found");
-      res.status(500).json({message: "user not found"});
+    console.log("user not found");
+    res.status(500).json({ message: "user not found" });
   } else {
-      res.status(200).json({
-          user: "Deleted",
-      });
+    res.status(200).json({
+      user: "Deleted",
+    });
   }
 };
 
 const updateUser = async (req, res, next) => {
-  const {user_id, password, name, contact_no, address} = req.body;
-  console.log(user_id);
+  console.log("updating user", req.body);
+  const { userId, email, new_pwd, curr_pwd, name, contact_no, address } =
+    req.body.formInput;
+  // console.log(userId, email, password, name, contact_no, address);
 
-  const hashedpw = await bcrypt.hash(password, 8).catch((err) => {
-      if (!err.statusCode) {
-          err.statusCode = 500;
-      }
-      next(err);
-  });
+  const user = await User.findOne({ where: { email: email } });
 
+  // console.log(user.dataValues.password);
+  //console.log(userHashedPassword)
+
+  let isValidPassword = false;
   try {
+    isValidPassword = await bcrypt.compare(curr_pwd, user.dataValues.password);
+  } catch (err) {
+    const error = new HttpError("Something went wrong!", 500);
+    return next(error);
+  }
+
+  if (isValidPassword) {
+    let hashedPassword;
+    try {
+      hashedPassword = await bcrypt.hash(new_pwd, 12);
+    } catch (err) {
+      const error = new HttpError(
+        "Something went wrong. Please try again.",
+        500
+      );
+      return next(error);
+    }
+
+    try {
       await User.update(
-          {
-              user_id,
-              password: hashedpw,
-              name,
-              contact_no,
-              address
+        {
+          userId,
+          password: hashedPassword,
+          name,
+          contact_no,
+          address,
+        },
+        {
+          where: {
+            userId: userId,
           },
-          {
-              where: {
-                  user_id
-              },
-          }
+        }
       );
       res.status(200).json({
-          message: "ok",
+        message: "ok",
       });
-  } catch (err) {
+    } catch (err) {
       if (!err.statusCode) {
-          err.statusCode = 500;
+        err.statusCode = 500;
       }
       next(err);
+    }
+  } else {
+    const error = new HttpError("Current password is wrong!", 500);
+    return next(error);
   }
 };
-
 
 exports.getUsers = getUsers;
 exports.signup = signup;
@@ -288,3 +325,4 @@ exports.login = login;
 exports.getUser = getUser;
 exports.deleteUser = deleteUser;
 exports.updateUser = updateUser;
+exports.getUserByEmail = getUserByEmail;

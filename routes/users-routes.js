@@ -30,4 +30,8 @@ router.post('/login', usersController.login);
 
 router.get('/users', usersController.getUsers);
 
+router.get('/user-by-email', usersController.getUserByEmail);
+
+router.post('/user', usersController.updateUser);
+
 module.exports = router;
