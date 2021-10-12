@@ -1,6 +1,8 @@
 const HttpError = require('../models/http-error');
 const Center = require('../models/center');
+const Package = require('../models/package')
 
+// Centers
 
 // Create center => /centers/new
 exports.createCenter = async (req, res, next) => {
@@ -31,7 +33,7 @@ exports.getSingleCenter = async (req, res, next) => {
     const center = await Center.findByPk(req.params.centerId);
 
     if (!center) {
-        return next(new HttpError('Center not found', 404));
+        return next(new HttpError('Center was not found', 404));
     }
 
     res.status(200).json({
@@ -40,7 +42,7 @@ exports.getSingleCenter = async (req, res, next) => {
     })
 }
 
-// Update product => /centers/update/:centerId
+// Update center => /centers/update/:centerId
 exports.updateCenter = async (req, res, next) => {
 
     const centerId = req.params.centerId;
@@ -74,7 +76,7 @@ exports.deleteCenter = async (req, res, next) => {
     console.log(center)
 
     if (!center) {
-        return next(new HttpError('Center not found', 404));
+        return next(new HttpError('Center was not found', 404));
     }
 
     await Center.destroy({
@@ -83,40 +85,81 @@ exports.deleteCenter = async (req, res, next) => {
 
     res.status(200).json({
         success: true,
-        message: 'Center is deleted'
+        message: 'Center was deleted successfully!'
     })
 }
 
-// // Delete center => /centers/delete/:centerId
-// exports.deleteCenter = async (req, res, next) => {
 
-//     const centerId = req.params.centerId;
+//Packages
 
-//     Center.destroy({
-//         where: { centerId: centerId }
+// Create package => /centers/packages/new
+exports.createPackage = async (req, res, next) => {
 
-//         .then(num => {
-//             if (num == 1) {
-//                 res.status(200).json({
-//                     success: true,
-//                     message: 'Center was deleted successfully!'
-//                 })
-//             } else {
-//                 res.status(200).json({
-//                     success: false,
-//                     message: 'Center was not found!'
-//                 })
-//             }
-//         })
-//         .catch(err => {
-//             res.status(200).json({
-//                 success: false,
-//                 message: 'Error'
-//             })
-//         })
-//     })
-// }
+    const package = await Package.create(req.body);
 
+    res.status(201).json({
+        success: true,
+        package
+    })
+}
 
+// Get all packages => /centers/packages/all
+exports.getPackages = async (req, res, next) => {
 
+    const packages = await Package.findAll();
 
+    res.status(200).json({
+        success: true,
+        count: packages.length,
+        packages
+    })
+}
+
+// Update package => /centers/packages/update/:packageId
+exports.updatePackage = async (req, res, next) => {
+
+    const packageId = req.params.packageId;
+
+    Package.update(req.body, {
+        where: { packageId: packageId }
+    })
+        .then(num => {
+            if (num == 1) {
+                res.send({
+                    message: "Package was updated successfully!"
+                });
+            } else {
+                res.send({
+                    message: `Cannot update Package with packageId=${packageId}. Maybe Package was not found or req.body is empty!`
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: "Error updating Package with packageId=" + packageId
+            });
+        });
+};
+
+// Delete package => /centers/packages/delete/:packageId
+exports.deletePackage = async (req, res, next) => {
+
+    const package = await Package.findByPk(req.params.packageId);
+
+    console.log(package)
+
+    if (!package) {
+        return next(new HttpError('Package was not found', 404));
+    }
+
+    await Package.destroy({
+        where: { packageId: package.packageId }
+    })
+
+    res.status(200).json({
+        success: true,
+        message: 'Package was deleted successfully!'
+    })
+}
+
+// Add reservation => /reserve
