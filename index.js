@@ -1,44 +1,72 @@
 const express = require("express");
-const app = express();
-const mysql = require("mysql");
-
-
-const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "password",
-    database: "qcrs_database",
-    port: "3306"
-})
-
-db.connect((err) => {
-    if (err) {
-        throw err;
-    }
-    console.log('mysql connected..');
-})
-
-//test
-// db.query("INSERT INTO qcrs_database.user VALUES (3,'test','test@test.com','1234567',0716666666,'testtest','test')", (err, rows) => {
-//     if (err) {
-//         throw err;
-//     }
-//     else {
-//         console.log('data sent')
-//         console.log(rows)
-//     }
-// })
-
+const bodyParser = require('body-parser');
 const port = process.env.PORT || 5000;
-
-app.get("/", (req, res) => {
-
-    res.send("hello..");
-});
+const sequelize = require('./database');
 
 
-// app.listen(3001, () => {
-//     console.log("running on port 3001")
-// });
-app.listen(port)
-console.log("app is listening on " + port)
+
+const userRoutes = require('./routes/users-routes');
+const centerRoutes = require('./routes/centers-routes');
+const HttpError = require('./models/http-error');
+
+const User = require('./models/user');
+const Center = require('./models/center');
+const app = express();
+
+app.use(bodyParser.json());//
+
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    );
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
+  
+    next();
+  });
+
+//ROUTES
+app.use("/auth", userRoutes);
+app.use("/centers", centerRoutes);
+
+
+
+// ERROR HANDLING
+app.use((req, res, next) => {
+    const error = new HttpError('Could not find this route.', 404);
+    throw error;
+  });
+  
+  app.use((error, req, res, next) => {
+    if (res.headerSent) {
+      return next(error);
+    }
+    res.status(error.code || 500);
+    res.json({ message: error.message || 'An unknown error occurred!' });
+  });
+
+//Relations
+// User.belongsTo(Center); //1U --> 1C, 1C --> MU
+// Center.hasMany(User);
+
+
+
+//CONNECTING MYSQL & SYNCING MODELS
+// sequelize.sync()
+// sequelize.sync({force:true})
+
+// app.listen(port)
+// console.log("app is listening on " + port)
+
+sequelize
+  .sync({force:true})
+  // .sync()
+  .then((sresults) => {
+    // console.log(results);
+    app.listen(port);
+    console.log("app is listening on " + port)
+  })
+  .catch((err) => {
+    console.log(err);
+  });
