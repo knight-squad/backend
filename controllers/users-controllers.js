@@ -227,21 +227,25 @@ const getUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   const user_id = req.params.userId;
+  console.log(user_id);
+  
+  let user = await User.destroy({ where: {userId: user_id }}).catch((err) => {
+          if (!err.statusCode) {
+              err.statusCode = 500;
+          }
+          next(err);
+      });;
 
-  let user = await User.destroy({where: {user_id}}).catch((err) => {
-      if (!err.statusCode) {
-          err.statusCode = 500;
-      }
-      next(err);
-  });
+  // console.log(user);
+
   if (!user) {
-      console.log("user not found");
-      res.status(500).json({message: "user not found"});
-  } else {
-      res.status(200).json({
-          user: "Deleted",
-      });
+    const error = new HttpError('Could not find user.', 404);
+    return next(error);
   }
+  else {
+          res.status(200).json({user: "Deleted",});
+        }
+
 };
 
 const updateUser = async (req, res, next) => {
