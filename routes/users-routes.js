@@ -30,4 +30,6 @@ router.post('/login', usersController.login);
 
 router.get('/users', usersController.getUsers);
 
+router.delete('/users/:userId', usersController.deleteUser);
+
 module.exports = router;
