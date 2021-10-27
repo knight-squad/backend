@@ -136,6 +136,8 @@ const login = async (req, res, next) => {
     existingUser = await User.findOne({ 
       where: {
         email: email }});
+        // console.log(existingUser.dataValues.userId);
+
   } catch (err) {
     const error = new HttpError(
       'Logging in failed, please try again later.',
@@ -174,10 +176,13 @@ const login = async (req, res, next) => {
   let token;
   try {
     token = jwt.sign(
-      { userId: existingUser.id, email: existingUser.email },
+      { userId: existingUser.dataValues.userId, email: existingUser.dataValues.email },
       'theprivatekey',
       { expiresIn: '1h' }
     );
+    console.log(existingUser.dataValues.userId);
+    console.log(existingUser.dataValues.email);
+    
   } catch (err) {
     const error = new HttpError(
       'Logging in failed, please try again later.',
@@ -185,10 +190,11 @@ const login = async (req, res, next) => {
     );
     return next(error);
   }
-
+  let uid =existingUser.dataValues.userId;
+  let emaill = existingUser.dataValues.email
   res.json({
-    userId: existingUser.id,
-    email: existingUser.email,
+    userId: uid,
+    email: emaill,
     token: token
   });
 
@@ -196,19 +202,9 @@ const login = async (req, res, next) => {
 
 //////////////////////////////////////////////////////////////////////
 const getUser = async (req, res, next) => {
-  // const user_id = req.params.userId;
-  //   try {
-  //       const allUsers = await User.findAll({where: {user_id}});
-  //       res.status(200).json({
-  //           user: allUsers,
-  //       });
-  //   } catch (err) {
-  //       if (!err.statusCode) {
-  //           err.statusCode = 500;
-  //       }
-  //       next(err);
-  //   }
-  const userId = req.params.uid;
+
+  const userId = req.params.userId;
+  console.log(userId);
   try{
     const allUsers = await User.findAll({where: {userId}});
     res.status(200).json({
@@ -249,28 +245,29 @@ const deleteUser = async (req, res, next) => {
 };
 
 const updateUser = async (req, res, next) => {
-  const {user_id, password, name, contact_no, address} = req.body;
-  console.log(user_id);
+  const {userId, email, name, contact_no, address } = req.body;
+  console.log(userId);
 
-  const hashedpw = await bcrypt.hash(password, 8).catch((err) => {
-      if (!err.statusCode) {
-          err.statusCode = 500;
-      }
-      next(err);
-  });
+  // const hashedpw = await bcrypt.hash(password, 8).catch((err) => {
+  //     if (!err.statusCode) {
+  //         err.statusCode = 500;
+  //     }
+  //     next(err);
+  // });
 
   try {
       await User.update(
           {
-              user_id,
-              password: hashedpw,
+              userId,
+              // password: hashedpw,
               name,
+              email,
               contact_no,
               address
           },
           {
               where: {
-                  user_id
+                  userId
               },
           }
       );
